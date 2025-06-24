@@ -7,65 +7,126 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="bg-grid"></div>
-    <div class="floating-orbs">
-        <div class="orb"></div>
-        <div class="orb"></div>
-        <div class="orb"></div>
-    </div>
-
     <div class="container">
-        <div class="header">
-            <h1>YouTube Downloader</h1>
-            <p class="subtitle">Download and manage your favorite videos</p>
-        </div>        <div class="tabs">
-            <button class="tab active" onclick="switchTab('download')">
-                📥 Download
-            </button>
-            <button class="tab" onclick="switchTab('library')">
-                📁 Library
-            </button>
-        </div>
-
+        <header class="main-header">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10 16.5V7.5L16 12L10 16.5Z" fill="#238636"/>
+                </svg>
+                <div class="logo-text">
+                    <h1>YouTube Downloader</h1>
+                    <p class="subtitle">Download and organize your favorite videos</p>
+                </div>
+            </div>
+            <div class="stats-container">
+                <div class="stat-item">
+                    <span id="video-count-value">0</span>
+                    <label>Videos</label>
+                </div>
+                <div class="stat-item">
+                    <span id="storage-used-value">0 MB</span>
+                    <label>Storage</label>
+                </div>
+            </div>
+        </header>
+        <nav class="nav-tabs" role="navigation" aria-label="Main navigation">
+            <div class="tab-container">
+                <button class="tab active" onclick="switchTab('download')" data-tab="download" role="tab" aria-selected="true" aria-controls="download-tab" onkeydown="handleTabKeydown(event)">
+                    <div class="tab-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                        <div class="icon-pulse"></div>
+                    </div>
+                    <div class="tab-content-wrapper">
+                        <span class="tab-title">Download</span>
+                        <span class="tab-subtitle">Add new videos</span>
+                        <div class="tab-accent-line"></div>
+                    </div>
+                    <div class="tab-indicator"></div>
+                    <div class="tab-ripple"></div>
+                </button>
+                <button class="tab" onclick="switchTab('library')" data-tab="library" role="tab" aria-selected="false" aria-controls="library-tab" onkeydown="handleTabKeydown(event)">
+                    <div class="tab-icon">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 6C3 4.89543 3.89543 4 5 4H19C20.1046 4 21 4.89543 21 6V18C21 19.1046 20.1046 20 19 20H5C3.89543 20 3 19.1046 3 18V6ZM5 6V18H19V6H5ZM7 8H17V10H7V8ZM7 12H17V14H7V12ZM7 16H13V18H7V16Z" stroke="currentColor" stroke-width="0.5"/>
+                        </svg>
+                        <div class="icon-pulse"></div>
+                    </div>
+                    <div class="tab-content-wrapper">
+                        <span class="tab-title">Library</span>
+                        <span class="tab-subtitle">Browse collection</span>
+                        <div class="tab-accent-line"></div>
+                    </div>
+                    <div class="tab-indicator"></div>
+                    <div class="tab-ripple"></div>
+                </button>
+            </div>
+            <div class="nav-background"></div>
+            <div class="nav-glow"></div>
+        </nav>
+        <div id="toast-container" class="toast-container" role="alert" aria-live="polite"></div>
         <div id="download-tab" class="tab-content active">
             <div class="card">
+                <div class="card-header">
+                    <h2>Download Video</h2>
+                    <p>Paste a YouTube URL below to download the video in high quality</p>
+                </div>
                 <form id="download-form" action="/download" method="POST">
                     <div class="form-group">
                         <label for="url">Video URL</label>
-                        <input 
-                            type="url" 
-                            id="url" 
-                            name="url" 
-                            placeholder="https://www.youtube.com/watch?v=..." 
-                            required
-                        >
+                        <div class="input-wrapper">
+                            <input 
+                                type="url" 
+                                id="url" 
+                                name="url" 
+                                placeholder="https://www.youtube.com/watch?v=..." 
+                                pattern="^(https?://)?(www\.)?(youtube\.com/(watch\?v=|embed/|v/)|youtu\.be/|youtube\.com/playlist\?list=|youtube\.com/shorts/)[\w\-]+"
+                                title="Please enter a valid YouTube URL (videos, playlists, or shorts)"
+                                required
+                                oninput="validateYouTubeURL(this)"
+                                onpaste="handleURLPaste(event)"
+                            >
+                            <div class="input-glow"></div>
+                            <div class="input-border"></div>
+                            <button id="paste-button" class="paste-btn">Paste</button>
+                        </div>
+                        <p class="form-hint">Supports YouTube videos, playlists, and shorts.</p>
                     </div>
-
                     <input type="hidden" name="save_path" value="./Downloads">
-
                     <button type="submit" class="download-btn">
                         🎬 Download Video
                     </button>
                 </form>
-
                 <div id="status" class="status-message"></div>
             </div>
-        </div>        <div id="library-tab" class="tab-content">
+            <div class="how-to-use-card">
+                <h3>How to use:</h3>
+                <ol>
+                    <li>Copy a YouTube video URL from your browser</li>
+                    <li>Paste it in the URL field above (or click "Paste")</li>
+                    <li>Click "Download Video" and wait for it to complete</li>
+                    <li>Find your video in the Library tab</li>
+                </ol>
+            </div>
+        </div>
+        <div id="library-tab" class="tab-content">
             <div class="card">
-                <h2 style="margin-bottom: 1.5rem; color: #e2e8f0; font-size: 1.5rem;">Your Downloaded Videos</h2>
-                
-                <div id="video-library" class="video-grid">
-                    <!-- Videos will be loaded here -->
+                <div class="card-header">
+                    <h2 class="card-title">Your Downloaded Videos</h2>
+                    <button id="cleanup-btn" class="cleanup-btn" onclick="cleanupFiles()">
+                        🧹 Clean Extra Files
+                    </button>
                 </div>
-
+                <div id="video-library" class="video-grid"></div>
                 <div id="empty-library" class="empty-state">
                     <div class="empty-icon">📽️</div>
                     <h3>No videos downloaded yet</h3>
-                    <p>Start by downloading some videos from the Download tab!</p>
+                    <p>Your downloaded videos will appear here.</p>
                 </div>
-            </div>        </div>
+            </div>
+        </div>
     </div>
-
     <script src="/static/scripts.js"></script>
 </body>
 </html>
