@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Downloader</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>YouTube Video Downloader</h1>
+        <form action="/download" method="POST">
+            <label for="url">YouTube Video URL:</label>
+            <input type="text" id="url" name="url" placeholder="Enter video URL" required>
+
+            <label for="save_path">Save Directory:</label>
+            <input type="text" id="save_path" name="save_path" placeholder="Enter save directory" required>
+
+            <button type="submit">Download</button>
+        </form>
+    </div>
+    <script src="/static/scripts.js"></script>
+</body>
+</html>
