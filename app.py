@@ -12,6 +12,10 @@ def static_files(filename):
 def index():
     return render_template('index.html')
 
+@app.route('/player.html')
+def player():
+    return render_template('player.html')
+
 @app.route('/download', methods=['POST'])
 def download():
     data = request.get_json()
@@ -62,10 +66,40 @@ def get_videos():
 
     return jsonify(videos)
 
-@app.route('/Downloads/<path:filename>', methods=['GET'])
+@app.route('/Downloads/<path:filename>')
 def serve_video(filename):
     save_path = './Downloads'
-    return send_from_directory(save_path, filename)
+    full_path = os.path.join(save_path, filename)
+    
+    print(f"Serving video: {filename}")
+    print(f"Full path: {full_path}")
+    print(f"File exists: {os.path.exists(full_path)}")
+    
+    if os.path.exists(full_path):
+        return send_from_directory(save_path, filename)
+    else:
+        return "Video file not found", 404
+
+@app.route('/debug/files')
+def debug_files():
+    save_path = './Downloads'
+    if not os.path.exists(save_path):
+        return jsonify({"error": "Downloads directory does not exist"})
+    
+    files = []
+    for file in os.listdir(save_path):
+        file_path = os.path.join(save_path, file)
+        if os.path.isfile(file_path):
+            files.append({
+                "name": file,
+                "size": os.path.getsize(file_path),
+                "full_path": os.path.abspath(file_path)
+            })
+    
+    return jsonify({
+        "downloads_path": os.path.abspath(save_path),
+        "files": files
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -15,8 +15,7 @@ function switchTab(tabName) {
     
     // Show selected tab content
     document.getElementById(tabName + '-tab').classList.add('active');
-    
-    // Add active class to clicked tab
+      // Add active class to clicked tab
     event.target.classList.add('active');
     
     // Load library if switching to library tab
@@ -41,9 +40,7 @@ async function loadVideoLibrary() {
         }
 
         libraryContainer.style.display = 'grid';
-        emptyState.style.display = 'none';
-
-        libraryContainer.innerHTML = videos.map(video => `
+        emptyState.style.display = 'none';        libraryContainer.innerHTML = videos.map(video => `
             <div class="video-card">
                 <div class="video-thumbnail" style="background: linear-gradient(135deg, #1e293b, #334155); display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 3rem;">
                     🎬
@@ -51,7 +48,7 @@ async function loadVideoLibrary() {
                 <div class="video-info">
                     <div class="video-title">${video.title}</div>
                     <div class="video-meta">Downloaded: ${new Date(video.downloadDate * 1000).toLocaleDateString()}</div>
-                    <button class="play-btn" onclick="playVideo('${video.filename}')">
+                    <button class="play-btn" onclick="playVideo('${video.filename}', '${video.title}')">
                         ▶️ Play Video
                     </button>
                 </div>
@@ -64,52 +61,21 @@ async function loadVideoLibrary() {
     }
 }
 
-// Play video function
-function playVideo(filename) {
-    const videoPath = `/Downloads/${filename}`;
+// Play video function - opens dedicated player page
+function playVideo(filename, title) {
+    console.log('Playing video:', filename, title);
     
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.9);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-    `;
-
-    modal.innerHTML = `
-        <div style="position: relative; max-width: 90%; max-height: 90%;">
-            <video controls autoplay style="width: 100%; height: auto; border-radius: 12px;">
-                <source src="${videoPath}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <button onclick="this.closest('.modal').remove()" style="
-                position: absolute;
-                top: -10px;
-                right: -10px;
-                background: #ef4444;
-                color: white;
-                border: none;
-                border-radius: 50%;
-                width: 30px;
-                height: 30px;
-                cursor: pointer;
-                font-size: 18px;
-            ">×</button>
-        </div>
-    `;
-
-    modal.className = 'modal';
-    modal.onclick = (e) => {
-        if (e.target === modal) modal.remove();
-    };
-
-    document.body.appendChild(modal);
+    // Create URL parameters for the player page
+    const params = new URLSearchParams();
+    params.set('video', filename);
+    params.set('title', title || filename);
+    
+    // Open the dedicated player page in the same tab
+    const playerUrl = `player.html?${params.toString()}`;
+    console.log('Opening player at:', playerUrl);
+    
+    // Navigate to the player page
+    window.location.href = playerUrl;
 }
 
 // Form submission handler
