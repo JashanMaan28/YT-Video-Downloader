@@ -459,7 +459,7 @@ body {
     }
 }
 
-/* Card Header with Cleanup Button */
+/* Card Header */
 .card-header {
     display: flex;
     justify-content: space-between;
@@ -467,43 +467,6 @@ body {
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid rgba(48, 54, 61, 0.5);
-}
-
-.cleanup-btn {
-    padding: 8px 16px;
-    background: linear-gradient(135deg, #fb8500, #ffb700);
-    border: 1px solid rgba(251, 133, 0, 0.6);
-    border-radius: 8px;
-    color: white;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.cleanup-btn:hover {
-    background: linear-gradient(135deg, #ffb700, #fb8500);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(251, 133, 0, 0.3);
-}
-
-.cleanup-btn:active {
-    transform: translateY(0);
-}
-
-@media (max-width: 768px) {
-    .card-header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: stretch;
-    }
-    
-    .cleanup-btn {
-        align-self: center;
-    }
 }
 
 /* Enhanced Input Mobile Responsiveness */

@@ -1,40 +1,42 @@
 import yt_dlp
 import os
-import json
+import requests
 
 def download_youtube_video(url, save_path):
-    """
-    Downloads a YouTube video from the given URL and saves it to the specified path.
-    Also downloads the thumbnail and returns video metadata.
-    """
+    """Downloads a YouTube video and thumbnail, returns metadata."""
     try:
         thumbnails_path = os.path.join(save_path, 'thumbnails')
         if not os.path.exists(thumbnails_path):
             os.makedirs(thumbnails_path)
+            
         ydl_opts = {
             'outtmpl': f'{save_path}/%(title)s.%(ext)s',
             'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
             'writethumbnail': False,
             'writeinfojson': False,
         }
+        
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             video_filename = ydl.prepare_filename(info)
+            
             title = info.get('title', 'Unknown Title')
             video_id = info.get('id', 'unknown')
             duration = info.get('duration', 0)
             view_count = info.get('view_count', 0)
             upload_date = info.get('upload_date', '')
             uploader = info.get('uploader', 'Unknown')
+            
             ydl.download([url])
-            thumbnail_url = info.get('thumbnail')
+            
             thumbnail_path = None
+            thumbnail_url = info.get('thumbnail')
             if thumbnail_url:
-                import requests
                 try:
                     safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).rstrip()[:50]
                     thumbnail_filename = f"{safe_title}_{video_id}.jpg"
                     thumbnail_path = os.path.join(thumbnails_path, thumbnail_filename)
+                    
                     response = requests.get(thumbnail_url, stream=True)
                     if response.status_code == 200:
                         with open(thumbnail_path, 'wb') as thumb_file:
@@ -44,6 +46,7 @@ def download_youtube_video(url, save_path):
                         thumbnail_path = None
                 except Exception:
                     thumbnail_path = None
+            
             if os.path.exists(video_filename):
                 metadata = {
                     'title': title,
@@ -64,5 +67,6 @@ def download_youtube_video(url, save_path):
                 }
             else:
                 return {'success': False, 'error': 'File not found after download'}
+                
     except Exception as e:
         return {'success': False, 'error': str(e)}

@@ -1,120 +1,39 @@
-console.log('YouTube Video Downloader UI Loaded');
-
-// --- EVENT LISTENERS ---
 document.addEventListener('DOMContentLoaded', function() {
-    // Load initial data
     loadVideoLibrary();
     
-    // Add event listener for the download form
     const downloadForm = document.getElementById('download-form');
     if (downloadForm) {
         downloadForm.addEventListener('submit', handleDownload);
     }
 
-    // Add event listener for the paste button
     const pasteButton = document.getElementById('paste-button');
     if(pasteButton) {
         pasteButton.addEventListener('click', handlePaste);
     }
+    
+    initializeTabs();
 });
 
-// --- INITIALIZATION ---
-
-/**
- * Initialize tab navigation and event listeners
- */
 function initializeTabs() {
-    // Set up initial tab state
     const tabs = document.querySelectorAll('.tab');
     tabs.forEach((tab, index) => {
         tab.setAttribute('tabindex', index === 0 ? '0' : '-1');
-        
-        // Add click event listener for ripple effect
-        tab.addEventListener('click', (e) => {
-            triggerRippleEffect(tab);
-        });
-        
-        // Add focus event listener
+        tab.addEventListener('click', () => triggerRippleEffect(tab));
         tab.addEventListener('focus', () => {
             tabs.forEach(t => t.setAttribute('tabindex', '-1'));
             tab.setAttribute('tabindex', '0');
         });
     });
-    
-    // Add smooth scroll behavior
     document.documentElement.style.scrollBehavior = 'smooth';
 }
 
-/**
- * Add visual feedback for tab interactions
- */
-function enhanceTabInteractions() {
-    const tabs = document.querySelectorAll('.tab');
-    
-    tabs.forEach(tab => {
-        // Add mouseenter effect
-        tab.addEventListener('mouseenter', () => {
-            if (!tab.classList.contains('active')) {
-                const iconPulse = tab.querySelector('.icon-pulse');
-                if (iconPulse) {
-                    iconPulse.style.width = '50px';
-                    iconPulse.style.height = '50px';
-                    iconPulse.style.opacity = '0.2';
-                }
-            }
-        });
-        
-        // Add mouseleave effect
-        tab.addEventListener('mouseleave', () => {
-            if (!tab.classList.contains('active')) {
-                const iconPulse = tab.querySelector('.icon-pulse');
-                if (iconPulse) {
-                    iconPulse.style.width = '0';
-                    iconPulse.style.height = '0';
-                    iconPulse.style.opacity = '0';
-                }
-            }
-        });
-    });
-}
-
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    initializeTabs();
-    enhanceTabInteractions();
-    
-    // Set up paste button functionality
-    const pasteButton = document.getElementById('paste-button');
-    if (pasteButton) {
-        pasteButton.addEventListener('click', handlePasteButtonClick);
-    }
-    
-    // Set up form validation
-    const urlInput = document.getElementById('url');
-    if (urlInput) {
-        // Add real-time validation feedback
-        urlInput.addEventListener('blur', () => {
-            if (urlInput.value.trim()) {
-                validateYouTubeURL(urlInput);
-            }
-        });
-    }
-});
-
-// --- CORE FUNCTIONS ---
-
-/**
- * Switches between the 'Download' and 'Library' tabs.
- */
 function switchTab(tabName) {
-    // Remove active classes from all tabs and content
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(tab => {
         tab.classList.remove('active');
         tab.setAttribute('aria-selected', 'false');
     });
     
-    // Add active class to selected tab and content
     const selectedTab = event.target.closest('.tab');
     const selectedContent = document.getElementById(tabName + '-tab');
     
@@ -123,78 +42,21 @@ function switchTab(tabName) {
         selectedTab.classList.add('active');
         selectedTab.setAttribute('aria-selected', 'true');
         
-        // Trigger ripple effect
         triggerRippleEffect(selectedTab);
         
-        // Show notification for tab switch
-        const tabTitle = selectedTab.querySelector('.tab-title').textContent;
-        const tabSubtitle = selectedTab.querySelector('.tab-subtitle').textContent;
-        showToast(`Switched to ${tabTitle}`, 'info', 2000, tabSubtitle);
-        
-        // Load library if switching to library tab
         if (tabName === 'library') {
             loadVideoLibrary();
         }
     }
 }
 
-/**
- * Handles keyboard navigation for tabs
- */
-function handleTabKeydown(event) {
-    const tabs = Array.from(document.querySelectorAll('.tab'));
-    const currentTab = event.target.closest('.tab');
-    const currentIndex = tabs.indexOf(currentTab);
-    
-    switch (event.key) {
-        case 'ArrowLeft':
-        case 'ArrowUp':
-            event.preventDefault();
-            const prevIndex = currentIndex > 0 ? currentIndex - 1 : tabs.length - 1;
-            tabs[prevIndex].focus();
-            tabs[prevIndex].click();
-            break;
-            
-        case 'ArrowRight':
-        case 'ArrowDown':
-            event.preventDefault();
-            const nextIndex = currentIndex < tabs.length - 1 ? currentIndex + 1 : 0;
-            tabs[nextIndex].focus();
-            tabs[nextIndex].click();
-            break;
-            
-        case 'Home':
-            event.preventDefault();
-            tabs[0].focus();
-            tabs[0].click();
-            break;
-            
-        case 'End':
-            event.preventDefault();
-            tabs[tabs.length - 1].focus();
-            tabs[tabs.length - 1].click();
-            break;
-            
-        case 'Enter':
-        case ' ':
-            event.preventDefault();
-            currentTab.click();
-            break;
-    }
-}
-
-/**
- * Creates a ripple effect when a tab is clicked
- */
 function triggerRippleEffect(tab) {
     const ripple = tab.querySelector('.tab-ripple');
     if (ripple) {
-        // Reset animation
         ripple.style.width = '0';
         ripple.style.height = '0';
         ripple.style.opacity = '0';
         
-        // Trigger animation
         setTimeout(() => {
             ripple.style.width = '200px';
             ripple.style.height = '200px';
@@ -210,9 +72,6 @@ function triggerRippleEffect(tab) {
     }
 }
 
-/**
- * Fetches video data from the server and populates the library.
- */
 async function loadVideoLibrary() {
     const libraryContainer = document.getElementById('video-library');
     const emptyState = document.getElementById('empty-library');
@@ -267,9 +126,6 @@ async function loadVideoLibrary() {
     }
 }
 
-/**
- * Handles the download form submission.
- */
 async function handleDownload(event) {
     event.preventDefault();
 
@@ -321,9 +177,6 @@ async function handlePaste(event) {
     }
 }
 
-/**
- * Validates YouTube URL format and provides visual feedback
- */
 function validateYouTubeURL(input) {
     const value = input.value.trim();
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|v\/)|youtu\.be\/|youtube\.com\/playlist\?list=|youtube\.com\/shorts\/)[\w\-]+/i;
@@ -345,59 +198,6 @@ function validateYouTubeURL(input) {
     }
 }
 
-/**
- * Enhanced paste handling for YouTube URLs
- */
-async function handleURLPaste(event) {
-    try {
-        // Get clipboard data
-        const clipboardData = event.clipboardData || window.clipboardData;
-        const pastedText = clipboardData.getData('text');
-        
-        // Validate the pasted URL
-        const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|v\/)|youtu\.be\/|youtube\.com\/playlist\?list=|youtube\.com\/shorts\/)[\w\-]+/i;
-        
-        if (pastedText && youtubeRegex.test(pastedText.trim())) {
-            showToast('YouTube URL pasted successfully!', 'success', 2000);
-            // Let the default paste behavior continue
-        } else if (pastedText) {
-            event.preventDefault(); // Prevent invalid URL from being pasted
-            showToast('Clipboard content is not a valid YouTube URL', 'error', 3000, 'Invalid Paste');
-        }
-    } catch (error) {
-        console.error('Error handling paste:', error);
-    }
-}
-
-/**
- * Enhanced paste button functionality
- */
-async function handlePasteButtonClick() {
-    try {
-        const clipboardText = await navigator.clipboard.readText();
-        const urlInput = document.getElementById('url');
-        
-        const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|v\/)|youtu\.be\/|youtube\.com\/playlist\?list=|youtube\.com\/shorts\/)[\w\-]+/i;
-        
-        if (youtubeRegex.test(clipboardText.trim())) {
-            urlInput.value = clipboardText.trim();
-            urlInput.classList.add('valid');
-            urlInput.classList.remove('invalid');
-            showToast('YouTube URL pasted from clipboard!', 'success', 2000);
-            
-            // Trigger focus animation
-            urlInput.focus();
-        } else {
-            showToast('Clipboard does not contain a valid YouTube URL', 'error', 3000, 'Invalid Clipboard Content');
-        }
-    } catch (error) {
-        showToast('Unable to access clipboard. Please paste manually.', 'warning', 3000);
-    }
-}
-
-/**
- * Opens the video player for the selected video.
- */
 function playVideo(filename, title) {
     const params = new URLSearchParams();
     params.set('video', filename);
@@ -405,29 +205,14 @@ function playVideo(filename, title) {
     window.location.href = `player.html?${params.toString()}`;
 }
 
-/**
- * Updates the video count and storage stats in the header.
- * @param {Array} videos - The array of video objects from the server.
- */
 function updateHeaderStats(videos) {
     const videoCount = videos.length;
     const { totalBytes, formattedSize } = calculateTotalStorage(videos);
     
     document.getElementById('video-count-value').textContent = videoCount;
     document.getElementById('storage-used-value').textContent = formattedSize;
-    
-    // Debug logging to verify the calculation
-    console.log(`📊 Storage Stats Update:`);
-    console.log(`  - Videos: ${videoCount}`);
-    console.log(`  - Total bytes: ${totalBytes.toLocaleString()}`);
-    console.log(`  - Formatted size: ${formattedSize}`);
 }
 
-/**
- * Formats file size from bytes to human-readable format.
- * @param {number} bytes - File size in bytes
- * @returns {string} Formatted file size (e.g., "1.5 GB", "250 MB", "1.2 KB")
- */
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 B';
     
@@ -439,11 +224,6 @@ function formatFileSize(bytes) {
     return `${size} ${sizes[i]}`;
 }
 
-/**
- * Calculates and returns total storage used by all videos.
- * @param {Array} videos - Array of video objects with fileSize property
- * @returns {Object} Object containing totalBytes and formattedSize
- */
 function calculateTotalStorage(videos) {
     const totalBytes = videos.reduce((sum, video) => sum + (video.fileSize || 0), 0);
     return {
@@ -452,9 +232,6 @@ function calculateTotalStorage(videos) {
     };
 }
 
-/**
- * Show a toast notification
- */
 function showToast(message, type = 'info', duration = 3000, title = '') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
@@ -486,9 +263,6 @@ function showToast(message, type = 'info', duration = 3000, title = '') {
     }, duration);
 }
 
-/**
- * Get icon SVG for toast notifications
- */
 function getToastIcon(type) {
     const icons = {
         success: `<svg viewBox="0 0 24 24" fill="currentColor" style="color: #2ea043;">
@@ -507,9 +281,6 @@ function getToastIcon(type) {
     return icons[type] || icons.info;
 }
 
-/**
- * Formats duration from seconds to readable format (HH:MM:SS or MM:SS)
- */
 function formatDuration(seconds) {
     if (!seconds || seconds === 0) return '0:00';
     
@@ -523,62 +294,3 @@ function formatDuration(seconds) {
         return `${minutes}:${secs.toString().padStart(2, '0')}`;
     }
 }
-
-/**
- * Clean up extra files created by yt-dlp
- */
-async function cleanupFiles() {
-    try {
-        showToast('Cleaning up extra files...', 'info', 2000);
-        
-        const response = await fetch('/cleanup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            showToast(result.message, 'success', 3000, 'Cleanup Complete');
-            // Refresh the library to show updated files
-            loadVideoLibrary();
-        } else {
-            showToast(result.error || 'Cleanup failed', 'error', 3000, 'Cleanup Error');
-        }
-    } catch (error) {
-        console.error('Cleanup error:', error);
-        showToast('Failed to clean up files', 'error', 3000, 'Network Error');
-    }
-}
-
-/**
- * Debug function to check thumbnail loading
- */
-function debugThumbnails() {
-    const thumbnails = document.querySelectorAll('.video-thumbnail');
-    console.log('Found thumbnails:', thumbnails.length);
-    
-    thumbnails.forEach((img, index) => {
-        console.log(`Thumbnail ${index}:`, {
-            src: img.src,
-            alt: img.alt,
-            complete: img.complete,
-            naturalWidth: img.naturalWidth,
-            naturalHeight: img.naturalHeight
-        });
-        
-        if (!img.complete) {
-            img.addEventListener('load', () => {
-                console.log(`Thumbnail ${index} loaded successfully`);
-            });
-            
-            img.addEventListener('error', (e) => {
-                console.error(`Thumbnail ${index} failed to load:`, e);
-            });
-        }
-    });
-}
-
-// --- EXISTING FUNCTIONS ---
