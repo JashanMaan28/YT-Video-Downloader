@@ -7,18 +7,68 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>YouTube Video Downloader</h1>
-        <form action="/download" method="POST">
-            <label for="url">YouTube Video URL:</label>
-            <input type="text" id="url" name="url" placeholder="Enter video URL" required>
-
-            <label for="save_path">Save Directory:</label>
-            <input type="text" id="save_path" name="save_path" placeholder="Enter save directory" required>
-
-            <button type="submit">Download</button>
-        </form>
+    <div class="bg-grid"></div>
+    <div class="floating-orbs">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
     </div>
-    <script src="/static/scripts.js"></script>
+
+    <div class="container">
+        <div class="header">
+            <h1>YouTube Downloader</h1>
+            <p class="subtitle">Download and manage your favorite videos</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('download')">
+                📥 Download
+            </button>
+            <button class="tab" onclick="switchTab('library')">
+                📁 Library
+            </button>
+        </div>
+
+        <div id="download-tab" class="tab-content active">
+            <div class="card">
+                <form id="download-form" action="/download" method="POST">
+                    <div class="form-group">
+                        <label for="url">Video URL</label>
+                        <input 
+                            type="url" 
+                            id="url" 
+                            name="url" 
+                            placeholder="https://www.youtube.com/watch?v=..." 
+                            required
+                        >
+                    </div>
+
+                    <input type="hidden" name="save_path" value="./Downloads">
+
+                    <button type="submit" class="download-btn">
+                        🎬 Download Video
+                    </button>
+                </form>
+
+                <div id="status" class="status-message"></div>
+            </div>
+        </div>
+
+        <div id="library-tab" class="tab-content">
+            <div class="card">
+                <h2 style="margin-bottom: 1.5rem; color: #e2e8f0; font-size: 1.5rem;">Your Downloaded Videos</h2>
+                
+                <div id="video-library" class="video-grid">
+                    <!-- Videos will be loaded here -->
+                </div>
+
+                <div id="empty-library" class="empty-state">
+                    <div class="empty-icon">📽️</div>
+                    <h3>No videos downloaded yet</h3>
+                    <p>Start by downloading some videos from the Download tab!</p>
+                </div>
+            </div>
+        </div>
+    </div>    <script src="/static/scripts.js"></script>
 </body>
 </html>

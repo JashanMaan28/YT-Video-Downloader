@@ -1,4 +1,5 @@
 import yt_dlp
+import os
 
 def download_youtube_video(url, save_path):
     """
@@ -14,20 +15,26 @@ def download_youtube_video(url, save_path):
     try:
         # Set up yt-dlp options
         ydl_opts = {
-            'outtmpl': f'{save_path}/%(title)s.%(ext)s',  # Save with video title as filename
-            'format': 'bestvideo+bestaudio/best',  # Best quality video and audio
+            'outtmpl': f'{save_path}/%(title)s.%(ext)s',
+            'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
         }
 
-        # Download the video
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Extract info first to get the filename
+            info = ydl.extract_info(url, download=False)
+            filename = ydl.prepare_filename(info)
+            
+            # Now download the video
             ydl.download([url])
-
-        print("Video downloaded successfully.")
+            
+            # Check if file exists
+            if os.path.exists(filename):
+                print(f"Video downloaded successfully: {filename}")
+                return filename
+            else:
+                print("Download completed but file not found at expected location.")
+                return None
+                
     except Exception as e:
         print(f"An error occurred: {e}")
-
-# Example usage
-if __name__ == "__main__":
-    video_url = input("Enter the YouTube video URL: ")
-    save_directory = input("Enter the directory to save the video: ")
-    download_youtube_video(video_url, save_directory)
+        return None
