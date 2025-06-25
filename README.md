@@ -79,7 +79,7 @@ We strongly support content creators and their rights. If you are a content crea
 ## 🚀 Features
 
 ✨ **Core Functionality**
-- **YouTube Video Download**: Download videos in multiple quality options (720p, 1080p, best available)
+- **YouTube Video Download**: Download videos in multiple quality options (720p, 1080p, best available - Default)
 - **AI-Powered Analysis**: Generate intelligent summaries and full transcripts using advanced AI models
 - **Smart Storage**: Automatic organization of downloads, summaries, and thumbnails
 - **Metadata Extraction**: Complete video information including title, uploader, views, duration, and description
@@ -174,13 +174,6 @@ Create a `.env` file in the root directory:
 ```env
 # Groq API Configuration (required for AI summaries)
 GROQ_API_KEY=your_groq_api_key_here
-
-# Flask Configuration
-FLASK_ENV=development
-FLASK_DEBUG=True
-
-# Download Configuration
-DOWNLOAD_PATH=./Downloads
 ```
 
 ### Step 6: Run the Application
@@ -213,7 +206,7 @@ http://127.0.0.1:5000
 
 - MP4 (recommended)
 - WebM
-- Various quality options (720p, 1080p, best available)
+- Various quality options (720p, 1080p, best available - Default)
 
 ### AI Analysis Features
 
@@ -311,9 +304,6 @@ GET /videos
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
 | `GROQ_API_KEY` | API key for Groq AI service | Yes | None |
-| `FLASK_ENV` | Flask environment mode | No | `production` |
-| `FLASK_DEBUG` | Enable Flask debug mode | No | `False` |
-| `DOWNLOAD_PATH` | Path for downloaded files | No | `./Downloads` |
 
 ### Groq API Setup
 
@@ -328,7 +318,7 @@ GET /videos
 # Using Chocolatey
 choco install ffmpeg
 
-# Or download from https://ffmpeg.org/download.html
+# Or download from https://ffmpeg.org/download.html 
 ```
 
 **macOS:**
@@ -359,7 +349,7 @@ Solution: Add GROQ_API_KEY to your .env file
 
 **Issue: "Permission denied when creating directories"**
 ```
-Solution: Run with appropriate permissions or change DOWNLOAD_PATH
+Solution: Run with appropriate permissions or change download directory location
 ```
 
 **Issue: "Video download fails"**
@@ -380,24 +370,15 @@ Solution:
 
 ### Debug Mode
 
-Enable debug mode for detailed error messages:
+Enable debug mode for detailed error messages by running:
 
 ```bash
-# Set in .env file
-FLASK_DEBUG=True
-
-# Or run with debug flag
 python app.py --debug
 ```
 
 ### Logs
 
-Check application logs for detailed error information:
-
-```bash
-# Flask automatically logs to console in debug mode
-# For production, consider adding file logging
-```
+Application logs will be displayed in the console during development.
 
 ---
 
@@ -499,37 +480,47 @@ We welcome contributions from the community! Here's how you can help:
 ### How to Contribute
 
 1. **Fork the Repository**
+   - Click the "Fork" button on the GitHub repository page, or use:
    ```bash
-   git fork https://github.com/yourusername/YT-Video-Downloader.git
+   gh repo fork https://github.com/yourusername/YT-Video-Downloader.git
    ```
 
-2. **Create a Feature Branch**
+2. **Clone Your Fork**
+   ```bash
+   git clone https://github.com/yourusername/YT-Video-Downloader.git
+   cd YT-Video-Downloader
+   ```
+
+3. **Create a Feature Branch**
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
-3. **Make Your Changes**
+4. **Make Your Changes**
    - Follow the existing code style
    - Add comments for complex logic
    - Update documentation if needed
 
-4. **Test Your Changes**
+5. **Test Your Changes**
    ```bash
    # Run the application and test thoroughly
    python app.py
    ```
 
-5. **Commit Your Changes**
+6. **Commit Your Changes**
    ```bash
+   git add .
    git commit -m "Add: your feature description"
    ```
 
-6. **Push to Your Fork**
+7. **Push to Your Fork**
    ```bash
    git push origin feature/your-feature-name
    ```
 
-7. **Create a Pull Request**
+8. **Create a Pull Request**
+   - Go to your fork on GitHub
+   - Click "New Pull Request"
    - Provide a clear description of your changes
    - Include screenshots for UI changes
    - Reference any related issues
@@ -554,7 +545,7 @@ We welcome contributions from the community! Here's how you can help:
 ### Development Setup
 
 1. Follow the installation instructions
-2. Enable debug mode in `.env`
+2. Set up your Groq API key in `.env`
 3. Make your changes
 4. Test thoroughly
 5. Submit your pull request
@@ -617,7 +608,7 @@ The MIT License includes standard disclaimers that the software is provided "AS 
 
 *For productivity, learning, and fun!*
 
-[![GitHub](https://img.shields.io/badge/GitHub-Follow-black?style=social&logo=github)](https://github.com/yourusername)
+[![GitHub](https://img.shields.io/badge/GitHub-Follow-black?style=social&logo=github)](https://github.com/JashanMaan28)
 [![Website](https://img.shields.io/badge/Website-Visit-blue?style=social&logo=internet-explorer)](https://jashanpreetsingh.tech)
 
 </div>
