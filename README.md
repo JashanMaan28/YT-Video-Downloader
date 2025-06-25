@@ -185,10 +185,50 @@ python app.py
 
 ### Step 7: Access the Application
 
-Open your web browser and navigate to:
+The application opens automatically in a desktop window when you run the script. This happens because of the following code in the main section:
+
+```python
+if __name__ == '__main__':
+    def run_flask():
+        app.run(debug=True, use_reloader=False)
+
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.daemon = True 
+    flask_thread.start() 
+    time.sleep(1)
+
+    # Open the desktop window
+    webview.create_window(
+        'YT Video Downloader & Analyzer',
+        'http://127.0.0.1:5000',
+        width=1200,
+        height=800,
+        resizable=True,
+        min_size=(800, 600)
+    )
+    webview.start()
+```
+
+This code:
+1. Starts the Flask server in a separate thread
+2. Creates a desktop window using `webview` that displays the web interface
+3. Automatically opens the application window
+
+**Alternative: Web Browser Only**
+
+If you don't want the application to open in a desktop window and prefer to use it only in your web browser, replace the main section with this simpler version:
+
+```python
+if __name__ == '__main__':
+    app.run(debug=True)
+```
+
+Then manually open your web browser and navigate to:
 ```
 http://127.0.0.1:5000
 ```
+
+The web browser version will work identically to the desktop version, but you'll need to manually open the URL in your preferred browser.
 
 ---
 
