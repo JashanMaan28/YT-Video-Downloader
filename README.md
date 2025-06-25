@@ -83,6 +83,7 @@ We strongly support content creators and their rights. If you are a content crea
 - **AI-Powered Analysis**: Generate intelligent summaries and full transcripts using advanced AI models
 - **Smart Storage**: Automatic organization of downloads, summaries, and thumbnails
 - **Metadata Extraction**: Complete video information including title, uploader, views, duration, and description
+- **Video Management**: Delete videos with all associated files (thumbnails, metadata, summaries)
 
 🎨 **User Experience**
 - **Modern UI/UX**: Responsive design with glassmorphism effects and smooth animations
@@ -275,6 +276,31 @@ Content-Type: application/json
   "success": true,
   "summary": "AI-generated summary...",
   "transcript": "Full video transcript..."
+}
+```
+
+### Delete Video
+```http
+DELETE /delete_video
+Content-Type: application/json
+
+{
+  "filename": "video_filename.mp4"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Video 'video_filename.mp4' and associated files deleted successfully.",
+  "files_deleted": [
+    "Video: video_filename.mp4",
+    "Metadata file",
+    "Info file",
+    "Summary file",
+    "Thumbnail image"
+  ]
 }
 ```
 

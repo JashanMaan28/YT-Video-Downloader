@@ -109,12 +109,20 @@ async function loadVideoLibrary() {
                         <div class="download-date">Downloaded: ${new Date(video.downloadDate * 1000).toLocaleDateString()}</div>
                         <div class="file-size">Size: ${formatFileSize(video.fileSize || 0)}</div>
                     </div>
-                    <button class="play-btn" onclick="playVideo('${video.filename.replace(/'/g, "\\'")}', '${video.title.replace(/'/g, "\\'")}')">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
-                        Play Video
-                    </button>
+                    <div class="video-actions">
+                        <button class="play-btn" onclick="playVideo('${video.filename.replace(/'/g, "\\'")}', '${video.title.replace(/'/g, "\\'")}')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                            Play Video
+                        </button>
+                        <button class="delete-btn" onclick="confirmDeleteVideo('${video.filename.replace(/'/g, "\\'")}', '${video.title.replace(/'/g, "\\'")}')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                            Delete
+                        </button>
+                    </div>
                 </div>
             </div>        `;
         }).join('');
@@ -191,7 +199,7 @@ function validateYouTubeURL(input) {
     
     if (youtubeRegex.test(value)) {
         input.classList.add('valid');
-        showToast('Valid YouTube URL detected!', 'success', 2000);
+        // Removed the prominent toast notification - just use visual indicator
     } else {
         input.classList.add('invalid');
         showToast('Please enter a valid YouTube URL', 'warning', 3000, 'Invalid URL Format');
@@ -292,5 +300,158 @@ function formatDuration(seconds) {
         return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     } else {
         return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+}
+
+function confirmDeleteVideo(filename, title) {
+    const modal = createConfirmationModal(filename, title);
+    document.body.appendChild(modal);
+    
+    // Focus on the cancel button for accessibility
+    setTimeout(() => {
+        const cancelBtn = modal.querySelector('.cancel-btn');
+        if (cancelBtn) cancelBtn.focus();
+    }, 100);
+}
+
+function createConfirmationModal(filename, title) {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-labelledby', 'delete-modal-title');
+    modal.setAttribute('aria-describedby', 'delete-modal-description');
+    
+    modal.innerHTML = `
+        <div class="modal-content delete-modal">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
+                </div>
+                <h3 id="delete-modal-title">Delete Video</h3>
+            </div>
+            <div class="modal-body">
+                <p id="delete-modal-description">
+                    Are you sure you want to delete "<strong>${title}</strong>"?
+                </p>
+                <div class="warning-note">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                    </svg>
+                    <span>This action will permanently delete the video file, thumbnail, metadata, and any generated summaries. This cannot be undone.</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-btn" onclick="closeDeleteModal()">
+                    Cancel
+                </button>
+                <button class="confirm-delete-btn" onclick="deleteVideo('${filename.replace(/'/g, "\\'")}')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12z"/>
+                    </svg>
+                    Delete Video
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeDeleteModal();
+        }
+    });
+    
+    // Handle keyboard navigation
+    modal.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+    
+    return modal;
+}
+
+function closeDeleteModal() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+        modal.classList.add('closing');
+        setTimeout(() => {
+            if (document.body.contains(modal)) {
+                document.body.removeChild(modal);
+            }
+        }, 300);
+    }
+}
+
+async function deleteVideo(filename) {
+    const modal = document.querySelector('.modal-overlay');
+    const confirmBtn = modal.querySelector('.confirm-delete-btn');
+    
+    // Show loading state
+    confirmBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="spinning">
+            <path d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z"/>
+        </svg>
+        Deleting...
+    `;
+    confirmBtn.disabled = true;
+    
+    try {
+        const response = await fetch('/delete_video', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename }),
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            // Success - close modal and show success message
+            closeDeleteModal();
+            showToast(result.message, 'success', 3000, 'Video Deleted');
+            
+            // Reload the video library to reflect the deletion
+            loadVideoLibrary();
+        } else {
+            // Check if it's a partial deletion (video file failed but other files deleted)
+            if (response.status === 500 && result.files_deleted && result.files_deleted.length > 0) {
+                closeDeleteModal();
+                showToast(result.error, 'warning', 6000, 'Partial Deletion');
+                // Still reload library in case some files were deleted
+                loadVideoLibrary();
+            } else if (response.status === 423) {
+                // File is in use
+                closeDeleteModal();
+                showToast('Video file is currently in use. Please close any video players and try again.', 'warning', 5000, 'File In Use');
+            } else {
+                throw new Error(result.error || 'Failed to delete video');
+            }
+        }
+    } catch (error) {
+        console.error('Error deleting video:', error);
+        
+        // Show error state
+        confirmBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/>
+            </svg>
+            Error
+        `;
+        
+        // Show error message
+        showToast(error.message, 'error', 5000, 'Delete Failed');
+        
+        // Reset button after a delay
+        setTimeout(() => {
+            confirmBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12z"/>
+                </svg>
+                Delete Video
+            `;
+            confirmBtn.disabled = false;
+        }, 2000);
     }
 }
