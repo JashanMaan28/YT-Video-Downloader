@@ -6,6 +6,8 @@ import json
 import subprocess
 import platform
 import time
+import threading
+import webview
 
 app = Flask(__name__, static_folder='frontend/static', template_folder='frontend')
 
@@ -306,4 +308,21 @@ def delete_video():
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    def run_flask():
+        app.run(debug=True, use_reloader=False)
+
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.daemon = True 
+    flask_thread.start() 
+    time.sleep(1)
+
+    # Open the desktop window
+    webview.create_window(
+        'YT Video Downloader & Analyzer',
+        'http://127.0.0.1:5000',
+        width=1200,
+        height=800,
+        resizable=True,
+        min_size=(800, 600)
+    )
+    webview.start()
