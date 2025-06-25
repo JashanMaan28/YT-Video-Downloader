@@ -10,104 +10,108 @@
     <div class="player-container">
         <header class="player-header">
             <a href="/" class="back-btn">← Back to Library</a>
-        </header>
-        
-        <main>
-            <!-- Video Player Section -->
-            <div class="video-wrapper" id="video-wrapper">
-                <div class="loading" id="loading">
-                    <div class="loading-spinner"></div>
-                    <p>Loading video...</p>
-                </div>
-                
-                <div class="video-container" id="video-container" style="display: none;">
-                    <video id="main-video" preload="metadata"></video>
-                    <div class="center-play-btn" id="center-play-btn"></div>
+        </header>          <main class="player-main">
+            <!-- Single Column Layout -->
+            <div class="left-column">
+                <!-- Video Player Section -->
+                <div class="video-wrapper" id="video-wrapper">
+                    <div class="loading" id="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading video...</p>
+                    </div>
                     
-                    <div class="video-controls" id="video-controls">
-                        <div class="progress-container" id="progress-container">
-                            <div class="progress-bar">
-                                <div class="progress-filled" id="progress-filled"></div>
-                            </div>
-                        </div>
+                    <div class="video-container" id="video-container" style="display: none;">
+                        <video id="main-video" preload="metadata"></video>
+                        <div class="center-play-btn" id="center-play-btn"></div>
                         
-                        <div class="controls-row">
-                            <div class="controls-left">
-                                <button class="control-btn play-pause-btn" id="play-pause-btn" aria-label="Play/Pause">▶</button>
-                                <button class="control-btn skip-btn" id="skip-backward" aria-label="Skip backward 10 seconds">⏪</button>
-                                <button class="control-btn skip-btn" id="skip-forward" aria-label="Skip forward 10 seconds">⏩</button>
-                                <div class="time-display" id="time-display">0:00 / 0:00</div>
+                        <div class="video-controls" id="video-controls">
+                            <div class="progress-container" id="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-filled" id="progress-filled"></div>
+                                </div>
                             </div>
                             
-                            <div class="controls-right">
-                                <div class="volume-container">
-                                    <button class="control-btn volume-btn" id="volume-btn" aria-label="Mute/Unmute">🔊</button>
-                                    <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100" aria-label="Volume">
+                            <div class="controls-row">
+                                <div class="controls-left">
+                                    <button class="control-btn play-pause-btn" id="play-pause-btn" aria-label="Play/Pause">▶</button>
+                                    <button class="control-btn skip-btn" id="skip-backward" aria-label="Skip backward 10 seconds">⏪</button>
+                                    <button class="control-btn skip-btn" id="skip-forward" aria-label="Skip forward 10 seconds">⏩</button>
+                                    <div class="time-display" id="time-display">0:00 / 0:00</div>
                                 </div>
-                                <button class="control-btn fullscreen-btn" id="fullscreen-btn" aria-label="Toggle fullscreen">⛶</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="error" id="error" style="display: none;">
-                    <h3>Error Loading Video</h3>
-                    <p id="error-message">The video could not be loaded.</p>
-                </div>
-            </div>
-
-            <!-- Video Information Card -->
-            <div class="video-info-card">
-                <h1 class="video-title" id="video-title">Loading...</h1>
-                <div class="video-details">
-                    <div class="detail-item">
-                        <div class="detail-label">File Name</div>
-                        <div class="detail-value" id="filename">-</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">File Size</div>
-                        <div class="detail-value" id="filesize">-</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Duration</div>
-                        <div class="detail-value" id="duration">-</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Resolution</div>
-                        <div class="detail-value" id="resolution">-</div>
-                    </div>
-                </div>
-            </div>            <!-- AI Transcription & Summary Section -->
-            <div class="summary-section">
-                <div class="summary-header">
-                    <h2 class="summary-title">AI Analysis</h2>
-                    <button class="summarize-btn" id="summarize-btn">🤖 Generate Analysis</button>
-                </div>
-                
-                <!-- Tab Navigation -->
-                <div class="tab-navigation">
-                    <button class="tab-btn active" data-tab="summary">📝 Summary</button>
-                    <button class="tab-btn" data-tab="transcript">📄 Transcript</button>
-                </div>
-                
-                <!-- Tab Content -->
-                <div class="tab-content">
-                    <!-- Summary Tab -->
-                    <div class="tab-panel active" id="summary-panel">
-                        <div class="summary-content" id="summary-content">
-                            <div class="summary-placeholder">
-                                <p>📝 Click "Generate Analysis" to create an AI-powered summary of this video's content.</p>
-                                <p>This feature uses advanced speech recognition and AI summarization to extract key points and insights.</p>
+                                
+                                <div class="controls-right">
+                                    <div class="volume-container">
+                                        <button class="control-btn volume-btn" id="volume-btn" aria-label="Mute/Unmute">🔊</button>
+                                        <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100" aria-label="Volume">
+                                    </div>
+                                    <button class="control-btn fullscreen-btn" id="fullscreen-btn" aria-label="Toggle fullscreen">⛶</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Transcript Tab -->
-                    <div class="tab-panel" id="transcript-panel">
-                        <div class="transcript-content" id="transcript-content">
-                            <div class="transcript-placeholder">
-                                <p>📄 The full transcript will appear here after generating the analysis.</p>
-                                <p>This includes the complete speech-to-text conversion of the video's audio.</p>
+                    <div class="error" id="error" style="display: none;">
+                        <h3>Error Loading Video</h3>
+                        <p id="error-message">The video could not be loaded.</p>
+                    </div>
+                </div>
+
+                <!-- Video Information Card -->
+                <div class="video-info-card">
+                    <h1 class="video-title" id="video-title">Loading...</h1>
+                    <div class="video-metadata">
+                        <div class="metadata-row">
+                            <span class="views" id="views">0 views</span>
+                            <span class="upload-date" id="upload-date">Upload date</span>
+                        </div>
+                        <div class="metadata-row">
+                            <span class="uploader" id="uploader">Channel</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Description -->
+                    <div class="video-description-section">
+                        <div class="description-header">
+                            <h3>Description</h3>
+                        </div>
+                        <div class="description-content" id="description-content">
+                            <div class="description-text collapsed" id="description-text">
+                                <p>Video description will appear here after loading...</p>
+                            </div>
+                            <button class="description-toggle" id="description-toggle">
+                                <span class="toggle-text">Show more</span>
+                                <span class="toggle-icon">▼</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- AI Analysis Section -->
+                    <div class="summary-section">
+                        <div class="summary-header">
+                            <h2 class="summary-title">AI Analysis</h2>
+                            <span class="summary-note">Summarize English videos for best results.</span>
+                            <button class="summarize-btn" id="summarize-btn">🤖 Generate Analysis</button>
+                        </div>
+                        <div class="tab-navigation">
+                            <button class="tab-btn active" data-tab="summary"><span>📝</span> Summary</button>
+                            <button class="tab-btn" data-tab="transcript"><span>📄</span> Transcript</button>
+                        </div>
+                        <div class="tab-content">
+                            <div class="tab-panel active" id="summary-panel" data-tab="summary">
+                                <div class="summary-content" id="summary-content">
+                                    <div class="summary-placeholder">
+                                        <p>🚀 Ready to unlock insights from this video?</p>
+                                        <p>Click "Generate Analysis" to create an AI-powered summary that extracts key points, insights, and actionable takeaways from the content.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-panel" id="transcript-panel" data-tab="transcript">
+                                <div class="transcript-content" id="transcript-content">
+                                    <div class="transcript-placeholder">
+                                        <p>📋 Complete transcript coming soon!</p>
+                                        <p>The full speech-to-text conversion will appear here, giving you a searchable text version of the video's audio content.</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

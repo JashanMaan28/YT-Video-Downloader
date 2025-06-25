@@ -23,13 +23,8 @@ class VideoPlayer {
         this.error = document.getElementById('error');
         this.errorMessage = document.getElementById('error-message');
         this.videoContainer = document.getElementById('video-container');
-        
-        // Info elements
+          // Info elements
         this.videoTitle = document.getElementById('video-title');
-        this.filenameEl = document.getElementById('filename');
-        this.filesizeEl = document.getElementById('filesize');
-        this.durationEl = document.getElementById('duration');
-        this.resolutionEl = document.getElementById('resolution');
         
         // Control elements
         this.playPauseBtn = document.getElementById('play-pause-btn');
@@ -51,6 +46,13 @@ class VideoPlayer {
         // Tab elements
         this.tabBtns = document.querySelectorAll('.tab-btn');
         this.tabPanels = document.querySelectorAll('.tab-panel');
+
+        // Description elements
+        this.descriptionText = document.getElementById('description-text');
+        this.descriptionToggle = document.getElementById('description-toggle');
+        this.viewsEl = document.getElementById('views');
+        this.uploadDateEl = document.getElementById('upload-date');
+        this.uploaderEl = document.getElementById('uploader');
     }
 
     setupEventListeners() {
@@ -89,6 +91,12 @@ class VideoPlayer {
             btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
         });
 
+        // Description toggle
+        this.descriptionToggle.addEventListener('click', () => this.toggleDescription());
+
+        // Load video metadata
+        this.loadVideoMetadata();
+
         // Load existing summary
         this.loadExistingSummary();
     }
@@ -97,37 +105,11 @@ class VideoPlayer {
         if (!this.filename) {
             this.showError('No video specified in URL parameters.');
             return;
-        }
-
-        this.videoTitle.textContent = this.title;
-        this.filenameEl.textContent = this.filename;
+        }        this.videoTitle.textContent = this.title;
 
         const videoPath = `/Downloads/${encodeURIComponent(this.filename)}`;
         this.video.src = videoPath;
-
-        // Get file size
-        fetch(videoPath, { method: 'HEAD' })
-            .then(response => {
-                if (response.ok) {
-                    const size = response.headers.get('content-length');
-                    if (size) this.filesizeEl.textContent = this.formatFileSize(parseInt(size));
-                } else {
-                    this.showError(`Video file not found (HTTP ${response.status})`);
-                }
-            })
-            .catch(() => {
-                this.showError('Could not access the video file.');
-            });
-    }
-
-    onVideoLoaded() {
-        if (this.video.duration) {
-            this.durationEl.textContent = this.formatTime(this.video.duration);
-        }
-        if (this.video.videoWidth && this.video.videoHeight) {
-            this.resolutionEl.textContent = `${this.video.videoWidth} × ${this.video.videoHeight}`;
-        }
-        
+    }    onVideoLoaded() {
         this.loading.style.display = 'none';
         this.videoContainer.style.display = 'block';
         this.centerPlayBtn.classList.add('show');
@@ -560,6 +542,69 @@ class VideoPlayer {
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    toggleDescription() {
+        const isCollapsed = this.descriptionText.classList.contains('collapsed');
+        
+        if (isCollapsed) {
+            this.descriptionText.classList.remove('collapsed');
+            this.descriptionText.classList.add('expanded');
+            this.descriptionToggle.querySelector('.toggle-text').textContent = 'Show';
+        } else {
+            this.descriptionText.classList.remove('expanded');
+            this.descriptionText.classList.add('collapsed');
+            this.descriptionToggle.querySelector('.toggle-text').textContent = 'Show more';
+        }
+    }
+
+    async loadVideoMetadata() {
+        try {
+            const response = await fetch(`/metadata/${encodeURIComponent(this.filename)}`);
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                const metadata = result.data;
+                
+                // Update metadata display
+                if (metadata.view_count) {
+                    this.viewsEl.textContent = `${metadata.view_count.toLocaleString()} views`;
+                }
+                
+                if (metadata.upload_date) {
+                    const date = new Date(metadata.upload_date.substring(0, 4) + '-' + 
+                                         metadata.upload_date.substring(4, 6) + '-' + 
+                                         metadata.upload_date.substring(6, 8));
+                    this.uploadDateEl.textContent = date.toLocaleDateString();
+                }
+                
+                if (metadata.uploader) {
+                    this.uploaderEl.textContent = metadata.uploader;
+                }
+                
+                // Update description
+                if (metadata.description && metadata.description !== 'No description available.') {
+                    this.descriptionText.innerHTML = `<p>${metadata.description.replace(/\n/g, '</p><p>')}</p>`;
+                } else {
+                    this.descriptionText.innerHTML = '<p>No description available for this video.</p>';
+                    this.descriptionToggle.style.display = 'none';
+                }
+            } else {
+                // Set default values if no metadata available
+                this.viewsEl.textContent = '0 views';
+                this.uploadDateEl.textContent = 'Unknown date';
+                this.uploaderEl.textContent = 'Unknown channel';
+                this.descriptionText.innerHTML = '<p>No description available for this video.</p>';
+                this.descriptionToggle.style.display = 'none';
+            }
+        } catch (error) {
+            // Set default values on error
+            this.viewsEl.textContent = '0 views';
+            this.uploadDateEl.textContent = 'Unknown date';
+            this.uploaderEl.textContent = 'Unknown channel';
+            this.descriptionText.innerHTML = '<p>Metadata could not be loaded for this video.</p>';
+            this.descriptionToggle.style.display = 'none';
+        }
     }
 }
 

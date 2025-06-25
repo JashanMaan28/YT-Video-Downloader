@@ -133,10 +133,16 @@ Transcript:
     return response.choices[0].message.content
 
 def save_summary(video_path, summary_data):
-    """Save summary data to a JSON file next to the video."""
+    """Save summary data to a JSON file in the summaries folder."""
     try:
-        base_name = os.path.splitext(video_path)[0]
-        summary_file = f"{base_name}_summary.json"
+        video_dir = os.path.dirname(video_path)
+        summaries_dir = os.path.join(video_dir, 'summaries')
+        
+        if not os.path.exists(summaries_dir):
+            os.makedirs(summaries_dir)
+        
+        base_name = os.path.splitext(os.path.basename(video_path))[0]
+        summary_file = os.path.join(summaries_dir, f"{base_name}_summary.json")
         
         with open(summary_file, 'w', encoding='utf-8') as f:
             json.dump(summary_data, f, indent=2, ensure_ascii=False)
@@ -146,10 +152,12 @@ def save_summary(video_path, summary_data):
         return None
 
 def load_summary(video_path):
-    """Load existing summary data if available."""
+    """Load existing summary data if available from the summaries folder."""
     try:
-        base_name = os.path.splitext(video_path)[0]
-        summary_file = f"{base_name}_summary.json"
+        video_dir = os.path.dirname(video_path)
+        summaries_dir = os.path.join(video_dir, 'summaries')
+        base_name = os.path.splitext(os.path.basename(video_path))[0]
+        summary_file = os.path.join(summaries_dir, f"{base_name}_summary.json")
         
         if os.path.exists(summary_file):
             with open(summary_file, 'r', encoding='utf-8') as f:

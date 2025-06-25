@@ -3,7 +3,7 @@ import os
 import requests
 
 def download_youtube_video(url, save_path):
-    """Downloads a YouTube video and thumbnail, returns metadata."""
+    """Downloads a YouTube video and thumbnail, returns metadata including description."""
     try:
         thumbnails_path = os.path.join(save_path, 'thumbnails')
         if not os.path.exists(thumbnails_path):
@@ -13,7 +13,7 @@ def download_youtube_video(url, save_path):
             'outtmpl': f'{save_path}/%(title)s.%(ext)s',
             'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
             'writethumbnail': False,
-            'writeinfojson': False,
+            'writeinfojson': True,  # Enable info JSON to capture all metadata
         }
         
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -26,6 +26,7 @@ def download_youtube_video(url, save_path):
             view_count = info.get('view_count', 0)
             upload_date = info.get('upload_date', '')
             uploader = info.get('uploader', 'Unknown')
+            description = info.get('description', 'No description available.')
             
             ydl.download([url])
             
@@ -47,22 +48,36 @@ def download_youtube_video(url, save_path):
                 except Exception:
                     thumbnail_path = None
             
+            # Save detailed metadata as JSON file
+            metadata_file = os.path.splitext(video_filename)[0] + '_metadata.json'
+            detailed_metadata = {
+                'title': title,
+                'video_id': video_id,
+                'duration': duration,
+                'view_count': view_count,
+                'upload_date': upload_date,
+                'uploader': uploader,
+                'description': description,
+                'url': url,
+                'video_filename': os.path.basename(video_filename),
+                'thumbnail_filename': os.path.basename(thumbnail_path) if thumbnail_path else None,
+                'download_timestamp': time.time() if 'time' in globals() else None
+            }
+            
+            try:
+                import time
+                detailed_metadata['download_timestamp'] = time.time()
+                with open(metadata_file, 'w', encoding='utf-8') as f:
+                    import json
+                    json.dump(detailed_metadata, f, indent=2, ensure_ascii=False)
+            except Exception:
+                pass  # Metadata file is optional
+            
             if os.path.exists(video_filename):
-                metadata = {
-                    'title': title,
-                    'video_id': video_id,
-                    'duration': duration,
-                    'view_count': view_count,
-                    'upload_date': upload_date,
-                    'uploader': uploader,
-                    'thumbnail_filename': os.path.basename(thumbnail_path) if thumbnail_path else None,
-                    'video_filename': os.path.basename(video_filename),
-                    'url': url
-                }
                 return {
                     'video_path': video_filename,
                     'thumbnail_path': thumbnail_path,
-                    'metadata': metadata,
+                    'metadata': detailed_metadata,
                     'success': True
                 }
             else:

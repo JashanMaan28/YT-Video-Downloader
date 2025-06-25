@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, send_from_directory, jsonify
 from backend.youtube_downloader import download_youtube_video
 from backend.transcriber import process_video, load_summary
 import os
+import json
+import json
 
 app = Flask(__name__, static_folder='frontend/static', template_folder='frontend')
 
@@ -152,6 +154,24 @@ def get_summary(filename):
     if summary_data:
         return jsonify({"success": True, "data": summary_data})
     return jsonify({"success": False, "message": "No summary available for this video."})
+
+@app.route('/metadata/<filename>')
+def get_metadata(filename):
+    video_path = os.path.join('./Downloads', filename)
+    if not os.path.exists(video_path):
+        return jsonify({"error": "Video file not found."}), 404
+    
+    # Try to load metadata file
+    metadata_file = os.path.splitext(video_path)[0] + '_metadata.json'
+    if os.path.exists(metadata_file):
+        try:
+            with open(metadata_file, 'r', encoding='utf-8') as f:
+                metadata = json.load(f)
+                return jsonify({"success": True, "data": metadata})
+        except Exception as e:
+            return jsonify({"error": f"Failed to load metadata: {str(e)}"}), 500
+    
+    return jsonify({"success": False, "message": "No metadata available for this video."})
 
 if __name__ == '__main__':
     app.run(debug=True)
