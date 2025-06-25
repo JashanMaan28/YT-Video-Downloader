@@ -17,8 +17,6 @@ def video_to_audio(video_path):
     try:
         with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_audio:
             clip = VideoFileClip(video_path)
-            duration = clip.duration
-            
             clip.audio.write_audiofile(
                 temp_audio.name, 
                 verbose=False, 
@@ -70,14 +68,9 @@ def summarize_transcript(transcript):
     combined_summary = "\n\n".join(chunk_summaries)
     
     if len(chunks) > 1:
-        final_prompt = f"""Create a final consolidated summary from the following part summaries of a video transcript. 
-Organize the content logically, remove redundancy, and create a coherent narrative structure. Do not repeat information across parts and also do not state that this is from a video transcript.
+        final_prompt = f"""Create a final consolidated summary from these part summaries. Organize content logically, remove redundancy, and create coherent narrative structure. Do not repeat information or state this is from a video transcript.
 
-Use proper markdown formatting:
-- Clear headers (# ## ###)
-- Bullet points for lists
-- **bold** for emphasis
-- No horizontal rules or separators
+Use markdown formatting: headers (# ## ###), bullet points, **bold** for emphasis. No horizontal rules.
 
 Part Summaries:
 {combined_summary}"""
@@ -95,30 +88,17 @@ Part Summaries:
 
 def _summarize_chunk(transcript, part_label=""):
     """Summarize a single chunk of transcript."""
-    prompt = f"""Create a comprehensive and well-structured summary of the provided video transcript{' ' + part_label if part_label else ''}. Follow these guidelines:
+    prompt = f"""Create a comprehensive summary of the video transcript{' ' + part_label if part_label else ''}.
 
-FORMATTING REQUIREMENTS:
-- Use proper markdown formatting with headers (# ## ###)
-- Use bullet points for lists (- or *)
-- Use **bold** for emphasis and *italics* for subtle emphasis
-- Do NOT use horizontal rules or separators like --- or ===
-- Keep paragraphs concise and well-spaced
+Use markdown formatting:
+- Headers (# ## ###) for sections
+- Bullet points for lists
+- **bold** for emphasis
+- No horizontal rules or separators
 
-CONTENT REQUIREMENTS:
-- Extract and organize key points, main ideas, and important details
-- Maintain the original language and tone of the transcript
-- Create clear sections with descriptive headers
-- Include specific examples, numbers, or quotes when mentioned
-- Summarize complex concepts in accessible language
-- Do not state that this is a summary of a video transcript
+Extract key points, main ideas, and important details. Create clear sections with descriptive headers. Include specific examples and quotes when mentioned. Do not state this is a video transcript summary.
 
-STRUCTURE:
-1. Brief overview/introduction
-2. Main topics organized under clear headers
-3. Key takeaways or conclusions
-4. Any actionable insights or recommendations mentioned
-
-Make the summary informative, engaging, and easy to scan. Focus on value and clarity.
+Structure: Overview, main topics with headers, key takeaways, actionable insights.
 
 Transcript:
 {transcript}"""
@@ -164,9 +144,8 @@ def load_summary(video_path):
                 data = json.load(f)
                 if isinstance(data, dict) and 'summary' in data and 'transcript' in data:
                     return data
-    except Exception as e:
+    except Exception:
         pass
-    
     return None
 
 def process_video(video_path, force_regenerate=False):

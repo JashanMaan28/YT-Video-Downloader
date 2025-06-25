@@ -63,7 +63,6 @@ function triggerRippleEffect(tab) {
             ripple.style.opacity = '0.15';
         }, 10);
         
-        // Reset after animation
         setTimeout(() => {
             ripple.style.width = '0';
             ripple.style.height = '0';
@@ -157,7 +156,7 @@ async function handleDownload(event) {
             statusDiv.className = 'status-message status-success';
             statusDiv.innerHTML = `✅ ${result.message}`;
             document.getElementById('url').value = '';
-            loadVideoLibrary(); // Reload library to show new video and update stats
+            loadVideoLibrary();
         } else {
             throw new Error(result.error || 'Unknown error occurred');
         }
@@ -189,17 +188,14 @@ function validateYouTubeURL(input) {
     const value = input.value.trim();
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com\/(watch\?v=|embed\/|v\/)|youtu\.be\/|youtube\.com\/playlist\?list=|youtube\.com\/shorts\/)[\w\-]+/i;
     
-    // Remove previous validation classes
     input.classList.remove('valid', 'invalid');
     
     if (value === '') {
-        // Empty input - neutral state
         return;
     }
     
     if (youtubeRegex.test(value)) {
         input.classList.add('valid');
-        // Removed the prominent toast notification - just use visual indicator
     } else {
         input.classList.add('invalid');
         showToast('Please enter a valid YouTube URL', 'warning', 3000, 'Invalid URL Format');
@@ -257,10 +253,8 @@ function showToast(message, type = 'info', duration = 3000, title = '') {
     
     container.appendChild(toast);
     
-    // Trigger animation
     setTimeout(() => toast.classList.add('show'), 100);
     
-    // Auto remove
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => {

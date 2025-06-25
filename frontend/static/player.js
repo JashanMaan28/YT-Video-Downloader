@@ -1,4 +1,3 @@
-// Video player class with transcription and summary features
 class VideoPlayer {
     constructor() {
         this.initializeElements();
@@ -7,7 +6,6 @@ class VideoPlayer {
         this.summaryData = null;
         this.isGeneratingSummary = false;
         
-        // Initialize player
         this.loadVideo();
     }
 
@@ -56,7 +54,6 @@ class VideoPlayer {
     }
 
     setupEventListeners() {
-        // Video events
         this.video.addEventListener('loadedmetadata', () => this.onVideoLoaded());
         this.video.addEventListener('error', () => this.onVideoError());
         this.video.addEventListener('timeupdate', () => {
@@ -64,7 +61,6 @@ class VideoPlayer {
             this.updateTimeDisplay();
         });
 
-        // Control events
         this.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
         this.centerPlayBtn.addEventListener('click', () => this.togglePlayPause());
         this.video.addEventListener('click', () => this.togglePlayPause());
@@ -78,26 +74,20 @@ class VideoPlayer {
         this.fullscreenBtn.addEventListener('click', () => this.toggleFullscreen());
         this.progressContainer.addEventListener('click', (e) => this.seekVideo(e));
 
-        // Controls visibility
         this.videoContainer.addEventListener('mousemove', () => this.showControls());
-        this.videoContainer.addEventListener('mouseleave', () => this.hideControls());        // Keyboard controls
+        this.videoContainer.addEventListener('mouseleave', () => this.hideControls());
+        
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
         
-        // Summary events
         this.summarizeBtn.addEventListener('click', () => this.generateSummary());
 
-        // Tab events
         this.tabBtns.forEach(btn => {
             btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
         });
 
-        // Description toggle
         this.descriptionToggle.addEventListener('click', () => this.toggleDescription());
 
-        // Load video metadata
         this.loadVideoMetadata();
-
-        // Load existing summary
         this.loadExistingSummary();
     }
 
@@ -105,8 +95,9 @@ class VideoPlayer {
         if (!this.filename) {
             this.showError('No video specified in URL parameters.');
             return;
-        }        this.videoTitle.textContent = this.title;
-
+        }
+        
+        this.videoTitle.textContent = this.title;
         const videoPath = `/Downloads/${encodeURIComponent(this.filename)}`;
         this.video.src = videoPath;
     }    onVideoLoaded() {
@@ -236,7 +227,8 @@ class VideoPlayer {
                 e.preventDefault();
                 this.toggleFullscreen();
                 break;
-        }        this.showControls();
+        }
+        this.showControls();
     }
     
     switchTab(tabName) {
@@ -534,14 +526,6 @@ class VideoPlayer {
         } else {
             return `${m}:${s.toString().padStart(2, '0')}`;
         }
-    }
-
-    formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
     toggleDescription() {

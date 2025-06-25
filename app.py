@@ -3,9 +3,36 @@ from backend.youtube_downloader import download_youtube_video
 from backend.transcriber import process_video, load_summary
 import os
 import json
-import json
+import subprocess
+import platform
+import time
 
 app = Flask(__name__, static_folder='frontend/static', template_folder='frontend')
+
+def find_matching_thumbnail(thumbnails_path, video_name):
+    """Find matching thumbnail for a video file."""
+    thumbnail_url = None
+    if os.path.exists(thumbnails_path):
+        thumbnail_files = [f for f in os.listdir(thumbnails_path) if f.endswith('.jpg')]
+        
+        for thumb_file in thumbnail_files:
+            if is_matching_thumbnail(thumb_file, video_name):
+                thumbnail_url = f"/thumbnails/{thumb_file}"
+                break
+    return thumbnail_url
+
+def is_matching_thumbnail(thumb_file, video_name):
+    """Check if thumbnail matches video name."""
+    thumb_name = os.path.splitext(thumb_file)[0]
+    video_clean = ''.join(c for c in video_name.lower() if c.isalnum() or c.isspace()).strip()
+    thumb_clean = ''.join(c for c in thumb_name.lower() if c.isalnum() or c.isspace()).strip()
+    
+    video_words = set(word for word in video_clean.split() if len(word) > 3)
+    thumb_words = set(word for word in thumb_clean.split() if len(word) > 3)
+    common_words = video_words.intersection(thumb_words)
+    word_overlap = len(common_words) / max(len(video_words), 1) if video_words else 0
+    
+    return word_overlap > 0.3 or video_clean in thumb_clean or thumb_clean in video_clean
 
 @app.route('/static/<path:filename>')
 def static_files(filename):
@@ -75,23 +102,7 @@ def get_videos():
         video_name = os.path.splitext(video)[0]
         thumbnail_url = None
         
-        # Find matching thumbnail using word overlap algorithm
-        if os.path.exists(thumbnails_path):
-            thumbnail_files = [f for f in os.listdir(thumbnails_path) if f.endswith('.jpg')]
-            
-            for thumb_file in thumbnail_files:
-                thumb_name = os.path.splitext(thumb_file)[0]
-                video_clean = ''.join(c for c in video_name.lower() if c.isalnum() or c.isspace()).strip()
-                thumb_clean = ''.join(c for c in thumb_name.lower() if c.isalnum() or c.isspace()).strip()
-                
-                video_words = set(word for word in video_clean.split() if len(word) > 3)
-                thumb_words = set(word for word in thumb_clean.split() if len(word) > 3)
-                common_words = video_words.intersection(thumb_words)
-                word_overlap = len(common_words) / max(len(video_words), 1) if video_words else 0
-                
-                if (word_overlap > 0.3 or video_clean in thumb_clean or thumb_clean in video_clean):
-                    thumbnail_url = f"/thumbnails/{thumb_file}"
-                    break
+        thumbnail_url = find_matching_thumbnail(thumbnails_path, video_name)
         
         videos.append({
             "title": video_name,
@@ -161,7 +172,6 @@ def get_metadata(filename):
     if not os.path.exists(video_path):
         return jsonify({"error": "Video file not found."}), 404
     
-    # Try to load metadata file
     metadata_file = os.path.splitext(video_path)[0] + '_metadata.json'
     if os.path.exists(metadata_file):
         try:
@@ -183,15 +193,12 @@ def delete_video():
     save_path = './Downloads'
     
     try:
-        # Main video file path
         video_path = os.path.join(save_path, filename)
         
         if not os.path.exists(video_path):
             return jsonify({"error": "Video file not found."}), 404
         
-        # Check if file is accessible before attempting deletion
         try:
-            # Try to open the file to check if it's in use
             with open(video_path, 'r+b') as f:
                 pass
         except PermissionError:
@@ -199,11 +206,9 @@ def delete_video():
         except Exception as e:
             return jsonify({"error": f"Cannot access video file '{filename}': {str(e)}"}), 403
         
-        # Files to delete
         files_deleted = []
         errors = []
         
-        # Delete main video file (try multiple times if needed)
         video_deleted = False
         for attempt in range(3):
             try:
@@ -213,12 +218,9 @@ def delete_video():
                     video_deleted = True
                     break
             except PermissionError as e:
-                if attempt == 2:  # Last attempt - try Windows force delete
+                if attempt == 2:
                     try:
-                        import subprocess
-                        import platform
                         if platform.system() == "Windows":
-                            # Use Windows del command with force flag
                             result = subprocess.run(['del', '/f', '/q', video_path], 
                                                   shell=True, capture_output=True, text=True)
                             if result.returncode == 0 and not os.path.exists(video_path):
@@ -230,16 +232,13 @@ def delete_video():
                     except Exception as force_e:
                         errors.append(f"Failed to force delete video file: {str(force_e)}")
                 else:
-                    import time
-                    time.sleep(0.5)  # Wait 500ms before retry
+                    time.sleep(0.5)
             except Exception as e:
                 errors.append(f"Failed to delete video file: {str(e)}")
                 break
         
-        # Delete associated files
         base_filename = os.path.splitext(filename)[0]
         
-        # Delete metadata file
         metadata_file = os.path.join(save_path, base_filename + '_metadata.json')
         if os.path.exists(metadata_file):
             try:
@@ -248,7 +247,6 @@ def delete_video():
             except Exception as e:
                 errors.append(f"Failed to delete metadata: {str(e)}")
         
-        # Delete .info.json file (yt-dlp metadata)
         info_file = os.path.join(save_path, base_filename + '.info.json')
         if os.path.exists(info_file):
             try:
@@ -257,7 +255,6 @@ def delete_video():
             except Exception as e:
                 errors.append(f"Failed to delete info file: {str(e)}")
         
-        # Delete summary file
         summaries_path = os.path.join(save_path, 'summaries')
         summary_file = os.path.join(summaries_path, base_filename + '_summary.json')
         if os.path.exists(summary_file):
@@ -267,22 +264,12 @@ def delete_video():
             except Exception as e:
                 errors.append(f"Failed to delete summary: {str(e)}")
         
-        # Delete thumbnail - find matching thumbnail using similar logic as in get_videos
         thumbnails_path = os.path.join(save_path, 'thumbnails')
         if os.path.exists(thumbnails_path):
             thumbnail_files = [f for f in os.listdir(thumbnails_path) if f.endswith('.jpg')]
             
             for thumb_file in thumbnail_files:
-                thumb_name = os.path.splitext(thumb_file)[0]
-                video_clean = ''.join(c for c in base_filename.lower() if c.isalnum() or c.isspace()).strip()
-                thumb_clean = ''.join(c for c in thumb_name.lower() if c.isalnum() or c.isspace()).strip()
-                
-                video_words = set(word for word in video_clean.split() if len(word) > 3)
-                thumb_words = set(word for word in thumb_clean.split() if len(word) > 3)
-                common_words = video_words.intersection(thumb_words)
-                word_overlap = len(common_words) / max(len(video_words), 1) if video_words else 0
-                
-                if (word_overlap > 0.3 or video_clean in thumb_clean or thumb_clean in video_clean):
+                if is_matching_thumbnail(thumb_file, base_filename):
                     try:
                         os.remove(os.path.join(thumbnails_path, thumb_file))
                         files_deleted.append("Thumbnail image")
@@ -290,7 +277,6 @@ def delete_video():
                     except Exception as e:
                         errors.append(f"Failed to delete thumbnail: {str(e)}")
         
-        # Prepare response
         if video_deleted and not errors:
             return jsonify({
                 "success": True,
