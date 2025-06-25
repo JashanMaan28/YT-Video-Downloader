@@ -159,33 +159,24 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Step 4: Create Required Directories
-
-```bash
-# Create Downloads directory structure
-mkdir Downloads
-mkdir Downloads\summaries
-mkdir Downloads\thumbnails
-```
-
-### Step 5: Environment Configuration
+### Step 4: Environment Configuration
 
 Create a `.env` file in the root directory:
 
 ```env
 # Groq API Configuration (required for AI summaries)
-GROQ_API_KEY=your_groq_api_key_here
+GROQ_API_KEY=your_groq_api_key_here # Refer to .env.example
 ```
 
-### Step 6: Run the Application
+### Step 5: Run the Application
 
 ```bash
 python app.py
 ```
 
-### Step 7: Access the Application
+### Step 6: Access the Application
 
-The application opens automatically in a desktop window when you run the script. This happens because of the following code in the main section:
+The application opens automatically in a desktop window when you run the script. This happens because of the following code in the main section of `app.py`:
 
 ```python
 if __name__ == '__main__':
@@ -216,7 +207,7 @@ This code:
 
 **Alternative: Web Browser Only**
 
-If you don't want the application to open in a desktop window and prefer to use it only in your web browser, replace the main section with this simpler version:
+If you don't want the application to open in a desktop window and prefer to use it only in your web browser, replace the main section of `app.py` with this simpler version:
 
 ```python
 if __name__ == '__main__':
