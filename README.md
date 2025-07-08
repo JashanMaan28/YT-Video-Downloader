@@ -108,7 +108,7 @@ YT-Video-Downloader/
 ├── backend/
 │   ├── youtube_downloader.py  # Video download logic
 │   └── transcriber.py         # AI transcription & summary logic
-├── Downloads/             # Downloaded videos, summaries, thumbnails, Metadata -- Make sure to add this in the root directory
+├── Downloads/             # Downloaded videos, summaries, thumbnails, Metadata
 │   └── summaries/
 │   └── thumbnails/
 ├── frontend/
@@ -136,7 +136,7 @@ YT-Video-Downloader/
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/YT-Video-Downloader.git
+git clone https://github.com/JashanMaan28/YT-Video-Downloader.git
 cd YT-Video-Downloader
 ```
 
@@ -539,12 +539,12 @@ We welcome contributions from the community! Here's how you can help:
 1. **Fork the Repository**
    - Click the "Fork" button on the GitHub repository page, or use:
    ```bash
-   gh repo fork https://github.com/yourusername/YT-Video-Downloader.git
+   gh repo fork https://github.com/JashanMaan28/YT-Video-Downloader.git
    ```
 
 2. **Clone Your Fork**
    ```bash
-   git clone https://github.com/yourusername/YT-Video-Downloader.git
+   git clone https://github.com/JashanMaan28/YT-Video-Downloader.git
    cd YT-Video-Downloader
    ```
 
